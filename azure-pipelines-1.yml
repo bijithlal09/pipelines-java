@@ -1,23 +1,64 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
 
 trigger:
-- Test
+- master
 
-pool:
-  vmImage: ubuntu-latest
+stages:
+ - stage: Build
+   jobs:
+   - job: Build
+     pool:
+      vmImage: 'vs2017-win2016'
 
-steps:
 
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
+     steps:
+     - task: Maven@3
+       inputs:
+         mavenPomFile: 'pom.xml'
+         mavenOptions: '-Xmx3072m'
+         javaHomeOption: 'JDKVersion'
+         jdkVersionOption: '1.8'
+         jdkArchitectureOption: 'x64'
+         publishJUnitResults: true
+         testResultsFiles: '**/surefire-reports/TEST-*.xml'
+         goals: 'package'
+
+ - stage: deploy
+   jobs:
+   - deployment: DeployWeb
+     displayName: deploy Web App
+    
+    # creates an environment if it doesn't exis
+     environment: 'smarthotel-dev'
+     strategy: 
+        runOnce:
+          deploy:
+            steps:
+            - task: DownloadBuildArtifacts@0
+              inputs:
+               buildType: 'current'
+               downloadType: 'single'
+               artifactName: 'drop'
+               downloadPath: '$(Build.ArtifactStagingDirectory)'
+            - task: IISWebAppManagementOnMachineGroup@0
+              inputs:
+                EnableIIS: true
+                IISDeploymentType: 'IISWebsite'
+                ActionIISWebsite: 'CreateOrUpdateWebsite'
+                WebsiteName: 'DemoSite2'
+                WebsitePhysicalPath: '%SystemDrive%\inetpub\wwwroot'
+                WebsitePhysicalPathAuth: 'WebsiteUserPassThrough'
+            - task: IISWebAppDeploymentOnMachineGroup@0
+              inputs:
+                WebSiteName: 'DemoSite2'
+                Package: '$(Build.ArtifactStagingDirectory)\drop\PartsUnlimitedWebsite.zip'
+              condition: always()  
+            - task: PowerShell@2
+              inputs:
+                targetType: 'inline'
+                script: 'Get-ChildItem -Path $(Build.ArtifactStagingDirectory) -Recurse -Force'
+              condition: always()
+            
