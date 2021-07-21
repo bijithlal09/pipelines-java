@@ -43,6 +43,11 @@ stages:
         runOnce:
           deploy:
             steps:
+
+            - task: Cache@2
+              inputs:
+                key: 'v1|maven'
+                path: '$(System.DefaultWorkingDirectory)'
             - task: DownloadBuildArtifacts@0
               inputs:
                buildType: 'current'
