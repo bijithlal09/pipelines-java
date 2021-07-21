@@ -31,6 +31,11 @@ stages:
          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
          ArtifactName: 'drop'
          publishLocation: 'Container'
+     - task: Cache@2
+       inputs:
+         key: 'v1|maven'
+         path: '$(System.DefaultWorkingDirectory)'
+     
 
  - stage: deploy
    jobs:
