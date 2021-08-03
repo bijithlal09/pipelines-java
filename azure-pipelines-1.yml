@@ -7,33 +7,6 @@ trigger:
 - master
 
 stages:
- - stage: Build
-   jobs:
-   - job: Build
-     pool:
-      vmImage: 'vs2017-win2016'
-
-
-     steps:
-     - task: Maven@3
-       inputs:
-         mavenPomFile: 'pom.xml'
-         mavenOptions: '-Xmx3072m'
-         javaHomeOption: 'JDKVersion'
-         jdkVersionOption: '1.8'
-         jdkArchitectureOption: 'x64'
-         publishJUnitResults: true
-         testResultsFiles: '**/surefire-reports/TEST-*.xml'
-         goals: 'package'
-
-     - task: PublishBuildArtifacts@1
-       inputs:
-         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-         ArtifactName: 'drop'
-         publishLocation: 'Container'
-
-     
-
  - stage: deploy
    jobs:
    - deployment: DeployWeb
@@ -52,10 +25,13 @@ stages:
                 path: '$(System.DefaultWorkingDirectory)'
             - task: DownloadBuildArtifacts@0
               inputs:
-               buildType: 'current'
-               downloadType: 'single'
-               artifactName: 'drop'
-               downloadPath: '$(Build.ArtifactStagingDirectory)'
+                buildType: 'specific'
+                project: 'b5239060-4dca-4083-b1ce-0a392b3a955c'
+                pipeline: '107'
+                buildVersionToDownload: 'latest'
+                downloadType: 'single'
+                artifactName: 'drop'
+                downloadPath: '$(Build.ArtifactStagingDirectory)'
 
             - task: PowerShell@2
               inputs:
