@@ -1,0 +1,44 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- master
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+ - stage: deploy
+   jobs:
+   - deployment: DeployWeb
+     displayName: deploy Web App
+    
+    # creates an environment if it doesn't exis
+     environment: 'smarthotel-dev'
+     strategy: 
+        runOnce:
+          deploy:
+            steps:
+
+            - task: Cache@2
+              inputs:
+                key: 'v1|maven'
+                path: '$(System.DefaultWorkingDirectory)'
+            - task: DownloadBuildArtifacts@0
+              inputs:
+                buildType: 'specific'
+                project: 'b5239060-4dca-4083-b1ce-0a392b3a955c'
+                pipeline: '107'
+                buildVersionToDownload: 'latest'
+                allowPartiallySucceededBuilds: true
+                downloadType: 'single'
+                artifactName: 'drop'
+                downloadPath: '$(Build.ArtifactStagingDirectory)'
+
+            - task: PowerShell@2
+              inputs:
+                targetType: 'inline'
+                script: 'Get-ChildItem -Path $(Build.ArtifactStagingDirectory) -Recurse -Force'
+              condition: always()
+            
