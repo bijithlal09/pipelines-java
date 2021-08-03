@@ -31,6 +31,7 @@ stages:
                 project: 'b5239060-4dca-4083-b1ce-0a392b3a955c'
                 pipeline: '107'
                 buildVersionToDownload: 'latest'
+                allowPartiallySucceededBuilds: true
                 downloadType: 'single'
                 artifactName: 'drop'
                 downloadPath: '$(Build.ArtifactStagingDirectory)'
