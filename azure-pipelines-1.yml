@@ -24,9 +24,9 @@ steps:
 - task: Cache@2
   inputs:
     key: 'v1|maven'
-    path: '$(Build.DefaultWorkingDirectory)'
+    path: '$(System.DefaultWorkingDirectory)'
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: '$(Build.DefaultWorkingDirectory)'
+    PathtoPublish: '$(System.DefaultWorkingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
